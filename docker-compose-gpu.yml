@@ -3,6 +3,7 @@ services:
   backend:
     volumes:
       - "./:/app"
+      - "C:\Users\georg\.ollama\models\Qwen\Qwen2.5-Coder-14B-Instruct-GGUF\qwen2.5-coder-14b-instruct-q5_k_m.gguf":/app/local_model_path"
     build:
       context: .
       dockerfile: Dockerfile-gpu 
@@ -11,7 +12,7 @@ services:
       - super__postgres
     networks:
       - super_network
-    command: ["/app/wait-for-it.sh", "super__postgres:5432","-t","60","--","/app/entrypoint.sh"]
+    command: ["/app/wait-for-it.sh", "super__postgres:5432", "-t", "60", "--", "/app/entrypoint.sh"]
     deploy:
       resources:
         reservations:
@@ -24,6 +25,7 @@ services:
     volumes:
       - "./:/app"
       - "${EXTERNAL_RESOURCE_DIR:-./workspace}:/app/ext"
+      - "C:\Users\georg\.ollama\models\Qwen\Qwen2.5-Coder-14B-Instruct-GGUF\qwen2.5-coder-14b-instruct-q5_k_m.gguf:/app/local_model_path"
     build:
       context: .
       dockerfile: Dockerfile-gpu 
@@ -40,6 +42,7 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
+  
   gui:
     build:
       context: ./gui
@@ -47,17 +50,11 @@ services:
         NEXT_PUBLIC_API_BASE_URL: "/api"
     networks:
       - super_network
-#    volumes:
-#      - ./gui:/app
-#      - /app/node_modules/
-#      - /app/.next/
+
   super__redis:
     image: "redis/redis-stack-server:latest"
     networks:
       - super_network
-#    uncomment to expose redis port to host
-#    ports:
-#      - "6379:6379"
     volumes:
       - redis_data:/data
 
@@ -71,9 +68,6 @@ services:
       - superagi_postgres_data:/var/lib/postgresql/data/
     networks:
       - super_network
-#    uncomment to expose postgres port to host
-#    ports:
-#      - "5432:5432"
 
   proxy:
     image: nginx:stable-alpine
